@@ -27,7 +27,6 @@ def login():
             st.success(f"Hello , {username}!")
             st.session_state['logged_in'] = True
             st.session_state['username'] = username
-            app_content()
         else:
             st.error("Tên đăng nhập hoặc mật khẩu không đúng!")
 
