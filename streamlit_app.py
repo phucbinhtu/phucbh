@@ -1,40 +1,48 @@
-import altair as alt
-import numpy as np
-import pandas as pd
 import streamlit as st
 
-"""
-# Welcome to Streamlit!
+# Tạo danh sách người dùng mẫu
+USER_CREDENTIALS = {
+    "admin": "admin123",
+    "user1": "password1",
+    "user2": "password2"
+}
 
-Edit `/streamlit_app.py` to customize this app to your heart's desire :heart:.
-If you have any questions, checkout our [documentation](https://docs.streamlit.io) and [community
-forums](https://discuss.streamlit.io).
+# Hàm kiểm tra đăng nhập
+def check_login(username, password):
+    return USER_CREDENTIALS.get(username) == password
 
-In the meantime, below is an example of what you can do with just a few lines of code:
-"""
+# Giao diện đăng nhập
+def login():
+    st.title("My Streamlit App")
+    st.subheader("Log In")
 
-num_points = st.slider("Number of points in spiral", 1, 10000, 1100)
-num_turns = st.slider("Number of turns in spiral", 1, 300, 31)
+    # Nhập thông tin
+    username = st.text_input("Username")
+    password = st.text_input("Password", type="password")
+    login_button = st.button("Log in")
 
-indices = np.linspace(0, 1, num_points)
-theta = 2 * np.pi * num_turns * indices
-radius = indices
+    # Kiểm tra đăng nhập
+    if login_button:
+        if check_login(username, password):
+            st.success(f"Hello , {username}!")
+            st.session_state['logged_in'] = True
+            st.session_state['username'] = username
+            app_content()
+        else:
+            st.error("Tên đăng nhập hoặc mật khẩu không đúng!")
 
-x = radius * np.cos(theta)
-y = radius * np.sin(theta)
+# Giao diện sau khi đăng nhập
+def app_content():
+    st.title("Nội Dung Chính")
+    st.write(f"Chào mừng bạn, {st.session_state['username']}!")
+    if st.button("Đăng xuất"):
+        st.session_state['logged_in'] = False
 
-df = pd.DataFrame({
-    "x": x,
-    "y": y,
-    "idx": indices,
-    "rand": np.random.randn(num_points),
-})
+# Xử lý trạng thái ứng dụng
+if 'logged_in' not in st.session_state:
+    st.session_state['logged_in'] = False
 
-st.altair_chart(alt.Chart(df, height=700, width=700)
-    .mark_point(filled=True)
-    .encode(
-        x=alt.X("x", axis=None),
-        y=alt.Y("y", axis=None),
-        color=alt.Color("idx", legend=None, scale=alt.Scale()),
-        size=alt.Size("rand", legend=None, scale=alt.Scale(range=[1, 150])),
-    ))
+if st.session_state['logged_in']:
+    app_content()
+else:
+    login()
